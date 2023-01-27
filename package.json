@@ -11,7 +11,7 @@
     "build": "rimraf ./build && yarn tsc",
     "lint": "eslint . --ext .ts",
     "lint-and-fix": "eslint . --ext .ts --fix",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "npm-publish": "npm version patch && npm publish --access public"
   },
   "keywords": [],
   "author": "Michael Kriel <michael616kriel@gmail.com>",
