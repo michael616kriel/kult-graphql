@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": "./src",
-    "target": "es2018",
+    "target": "es2018",                          
     "module": "CommonJS",
     "moduleResolution": "node", 
     "lib": ["es2017"],
@@ -12,16 +12,17 @@
     "noImplicitAny": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
+    "declaration": true,
     "emitDecoratorMetadata": true,
     "paths": {
-      "models/*": ["app/models/*"],
-      "controller/*": ["app/controller/*"]
+      "*": ["*"],
+      "lib/*": ["lib/*"],
+      "utils/*": ["utils/*"]
     }
   },
   "include": ["./src/**/*.ts"],
   "exclude": ["node_modules"]
 }
-
- 
