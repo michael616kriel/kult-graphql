@@ -4,6 +4,9 @@
   "description": "",
   "main": "build/index.js",
   "types": "build/index.d.ts",
+  "files": [
+    "build/"
+  ],
   "scripts": {
     "tsc": "tsc -p tsconfig.json && tsc-alias",
     "start": "npm run build && node build/index.js",
