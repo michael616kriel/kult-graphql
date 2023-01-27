@@ -9,6 +9,8 @@ import { join } from 'path';
 import { getControllerMetadata } from './lib/decorators';
 import { getProjectRoot } from './utils/helpers';
 
+export * from './lib/decorators';
+
 @KultPlugin('Kult Graphql')
 export default class KultGraphql extends PluginBase {
   constructor(app: Application) {
