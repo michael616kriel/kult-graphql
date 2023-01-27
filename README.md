@@ -17,21 +17,33 @@ Have a look at our [docs](https://michael616kriel.github.io/kult-docs/) for more
 
 yarn:
 
-```
+```bash label="bash"
 yarn add @kult/graphql
 ```
 
 NPM:
 
-```
+```bash label="bash"
 npm i @kult/graphql
 ```
 
 ## Usage
 
+Create a `schema.graphql` in your `src` directory:
+
+```typescript label="./src/app/config/plugins.ts"
+type Query {
+  hello: String
+}
+
+type Mutation {
+  sayHello: String
+}
+```
+
 Register the plugin in `./src/app/config/plugins.ts`
 
-```
+```typescript label="./src/app/config/plugins.ts"
 import KultGraphqlPlugin from '@kult/graphql';
 
 export default {
@@ -39,42 +51,39 @@ export default {
 };
 ```
 
+Define your queries and mutations using the `@Query` and `@Mutation` decorators:
+
+```typescript label="./src/app/config/plugins.ts"
+import { Application, ControllerBase, KultController } from '@kult/core';
+import { Mutation, Query } from '@kult/graphql';
+
+@KultController('/users')
+class UserController extends ControllerBase {
+  constructor(app: Application) {
+    super(app);
+  }
+
+  @Query()
+  hello() {
+    return 'hello world';
+  }
+
+  @Mutation()
+  sayHello() {
+    return 'hello world';
+  }
+}
+
+export default UserController;
+```
+
 ### Environment Variables
 
 Ensure this port is different than your server's port
 
-```
+```bash label=".env"
 GRAPHQL_PORT=3001
 ```
-
-## Running
-
-yarn:
-
-```
-yarn dev
-```
-
-NPM:
-
-```
-npm run dev
-```
-
-## Building
-
-yarn:
-
-```
-yarn build
-```
-
-NPM:
-
-```
-npm run build
-```
-
 ## Community
 
 - [Discord](https://discord.gg/dRwGqHvE)
