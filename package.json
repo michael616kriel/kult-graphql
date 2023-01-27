@@ -1,0 +1,50 @@
+{
+  "name": "@kult/graphql",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "tsc": "tsc -p tsconfig.json && tsc-alias",
+    "start": "npm run build && node build/index.js",
+    "dev": "npx nodemon",
+    "build": "rimraf ./build && yarn tsc",
+    "lint": "eslint . --ext .ts",
+    "lint-and-fix": "eslint . --ext .ts --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Michael Kriel <michael616kriel@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/michael616kriel/kult-graphql.git"
+  },
+  "bugs": {
+    "url": "https://github.com/michael616kriel/kult-graphql/issues"
+  },
+  "homepage": "https://github.com/michael616kriel/kult-graphql",
+  "devDependencies": {
+    "@types/lodash": "^4.14.191",
+    "@types/node": "^18.11.18",
+    "@typescript-eslint/eslint-plugin": "^5.49.0",
+    "@typescript-eslint/parser": "^5.49.0",
+    "eslint": "^8.32.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-import-resolver-typescript": "^3.5.3",
+    "eslint-plugin-import": "^2.27.5",
+    "nodemon": "^2.0.20",
+    "rimraf": "^4.1.1",
+    "ts-node": "^10.9.1",
+    "tsc-alias": "^1.8.2",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "@graphql-tools/schema": "^9.0.14",
+    "@kult/core": "^0.0.29",
+    "apollo-server-koa": "^3.11.1",
+    "chalk": "^4.1.2",
+    "graphql": "^16.6.0",
+    "lodash": "^4.17.21"
+  }
+}
