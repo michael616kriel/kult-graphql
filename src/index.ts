@@ -1,12 +1,16 @@
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { Application, KultPlugin, PluginBase } from '@kult/core';
+import {
+  Application,
+  getControllerMetadata,
+  KultPlugin,
+  PluginBase,
+} from '@kult/core';
 import { ApolloServer } from 'apollo-server-koa';
 import chalk from 'chalk';
 import { readFileSync } from 'fs';
 import http from 'http';
 import { isEmpty, omitBy } from 'lodash';
 import { join } from 'path';
-import { getControllerMetadata } from './lib/decorators';
 import { getProjectRoot } from './utils/helpers';
 
 export * from './lib/decorators';
@@ -26,7 +30,6 @@ export default class KultGraphql extends PluginBase {
     const typeDefs = await readFileSync(
       join(rootPath, './schema.graphql')
     ).toString();
-
     const apolloServer = new ApolloServer({
       introspection: true,
       schema: makeExecutableSchema({
@@ -66,20 +69,24 @@ export default class KultGraphql extends PluginBase {
     };
     for (const controller of controllers) {
       const graphqlMetadata = getControllerMetadata(controller.instance);
-      for (const query of graphqlMetadata) {
-        const { action, type } = query;
-        const controllerAction = (...args: any) => {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          return controller.instance[action](...args);
-        };
-        switch (type) {
-          case 'QUERY':
-            resolvers.Query[action] = controllerAction;
-            break;
-          case 'MUTATION':
-            resolvers.Mutation[action] = controllerAction;
-            break;
+      const queries = graphqlMetadata.actions.map((action) =>
+        action.middleware.find((middleware) => middleware.type === 'graphql')
+      );
+      for (const query of queries) {
+        if (query) {
+          const controllerAction = (parent: any, params: any) => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            return controller.instance[query.property](parent, params);
+          };
+          switch (query.method) {
+            case 'QUERY':
+              resolvers.Query[query.property] = controllerAction;
+              break;
+            case 'MUTATION':
+              resolvers.Mutation[query.property] = controllerAction;
+              break;
+          }
         }
       }
       return omitBy(resolvers, isEmpty);
