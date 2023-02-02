@@ -53,6 +53,5 @@
     "graphql": "^16.6.0",
     "lodash": "^4.17.21",
     "reflect-metadata": "^0.1.13"
-  },
-  "version": "0.0.0-development"
+  }
 }
