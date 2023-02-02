@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@graphql-tools/schema": "^9.0.14",
-    "@kult/core": "^1.8.0",
+    "@kult/core": "^1.9.0",
     "apollo-server-koa": "^3.11.1",
     "chalk": "^4.1.2",
     "graphql": "^16.6.0",
