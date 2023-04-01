@@ -2,7 +2,8 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import {
   Application,
   getControllerMetadata,
-  KultPlugin,
+  loadConfig,
+  Plugin,
   PluginBase,
 } from '@kult/core';
 import { ApolloServer } from 'apollo-server-koa';
@@ -10,45 +11,52 @@ import chalk from 'chalk';
 import { readFileSync } from 'fs';
 import http from 'http';
 import { isEmpty, omitBy } from 'lodash';
-import { join } from 'path';
-import { getProjectRoot } from './utils/helpers';
-
+import {mergeTypeDefs} from '@graphql-tools/merge'
 export * from './lib/decorators';
 
-@KultPlugin('Kult Graphql')
+type GraphqlOptions = {
+  schemas: string[];
+  port: number;
+  path: string
+};
+
+@Plugin({
+  name: 'Kult Graphql',
+})
 export default class KultGraphql extends PluginBase {
+
+  config: GraphqlOptions;
+
   constructor(app: Application) {
     super(app);
-    this.init();
   }
 
-  async init() {
+  async initialize() {
     const server = this.app.server.server;
     const httpServer = http.createServer();
-    const rootPath = getProjectRoot();
+    this.config = await loadConfig<GraphqlOptions>('graphql');
     const resolvers = this.getResolvers();
-    const typeDefs = await readFileSync(
-      join(rootPath, './schema.graphql')
-    ).toString();
+    const typeDefs = this.config.schemas.join('\n');
+
     const apolloServer = new ApolloServer({
       introspection: true,
       schema: makeExecutableSchema({
-        typeDefs,
+        typeDefs: mergeTypeDefs(typeDefs),
         resolvers,
       }),
     });
 
     await apolloServer.start();
 
-    apolloServer.applyMiddleware({ app: server, path: '/graphql' });
+    apolloServer.applyMiddleware({ app: server, path: this.config.path });
     httpServer.on('request', server.callback());
 
-    httpServer.listen({ port: process.env.GRAPHQL_PORT }, () => {
+    httpServer.listen({ port: this.config.port }, () => {
       console.log(
         `${chalk.greenBright(
           chalk.bold('Graphql Server started:')
         )} ${chalk.white(
-          `http://localhost:${process.env.GRAPHQL_PORT}${apolloServer.graphqlPath} 🚀`
+          `http://localhost:${this.config.port}${apolloServer.graphqlPath} 🚀`
         )}`
       );
     });
@@ -67,7 +75,9 @@ export default class KultGraphql extends PluginBase {
       Query: {},
       Mutation: {},
     };
-    for (const controller of controllers) {
+
+    for (let index = 0; index < controllers.length; index++) {
+      const controller = controllers[index];
       const graphqlMetadata = getControllerMetadata(controller.instance);
       const queries = graphqlMetadata.actions.map((action) =>
         action.middleware.find((middleware) => middleware.type === 'graphql')
@@ -89,7 +99,7 @@ export default class KultGraphql extends PluginBase {
           }
         }
       }
-      return omitBy(resolvers, isEmpty);
     }
+    return omitBy(resolvers, isEmpty);
   }
 }

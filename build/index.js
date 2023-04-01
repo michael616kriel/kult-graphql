@@ -30,35 +30,32 @@ const schema_1 = require("@graphql-tools/schema");
 const core_1 = require("@kult/core");
 const apollo_server_koa_1 = require("apollo-server-koa");
 const chalk_1 = __importDefault(require("chalk"));
-const fs_1 = require("fs");
 const http_1 = __importDefault(require("http"));
 const lodash_1 = require("lodash");
-const path_1 = require("path");
-const helpers_1 = require("./utils/helpers");
+const merge_1 = require("@graphql-tools/merge");
 __exportStar(require("./lib/decorators"), exports);
 let KultGraphql = class KultGraphql extends core_1.PluginBase {
     constructor(app) {
         super(app);
-        this.init();
     }
-    async init() {
+    async initialize() {
         const server = this.app.server.server;
         const httpServer = http_1.default.createServer();
-        const rootPath = (0, helpers_1.getProjectRoot)();
+        this.config = await (0, core_1.loadConfig)('graphql');
         const resolvers = this.getResolvers();
-        const typeDefs = await (0, fs_1.readFileSync)((0, path_1.join)(rootPath, './schema.graphql')).toString();
+        const typeDefs = this.config.schemas.join('\n');
         const apolloServer = new apollo_server_koa_1.ApolloServer({
             introspection: true,
             schema: (0, schema_1.makeExecutableSchema)({
-                typeDefs,
+                typeDefs: (0, merge_1.mergeTypeDefs)(typeDefs),
                 resolvers,
             }),
         });
         await apolloServer.start();
-        apolloServer.applyMiddleware({ app: server, path: '/graphql' });
+        apolloServer.applyMiddleware({ app: server, path: this.config.path });
         httpServer.on('request', server.callback());
-        httpServer.listen({ port: process.env.GRAPHQL_PORT }, () => {
-            console.log(`${chalk_1.default.greenBright(chalk_1.default.bold('Graphql Server started:'))} ${chalk_1.default.white(`http://localhost:${process.env.GRAPHQL_PORT}${apolloServer.graphqlPath} 🚀`)}`);
+        httpServer.listen({ port: this.config.port }, () => {
+            console.log(`${chalk_1.default.greenBright(chalk_1.default.bold('Graphql Server started:'))} ${chalk_1.default.white(`http://localhost:${this.config.port}${apolloServer.graphqlPath} 🚀`)}`);
         });
     }
     getResolvers() {
@@ -67,7 +64,8 @@ let KultGraphql = class KultGraphql extends core_1.PluginBase {
             Query: {},
             Mutation: {},
         };
-        for (const controller of controllers) {
+        for (let index = 0; index < controllers.length; index++) {
+            const controller = controllers[index];
             const graphqlMetadata = (0, core_1.getControllerMetadata)(controller.instance);
             const queries = graphqlMetadata.actions.map((action) => action.middleware.find((middleware) => middleware.type === 'graphql'));
             for (const query of queries) {
@@ -87,12 +85,14 @@ let KultGraphql = class KultGraphql extends core_1.PluginBase {
                     }
                 }
             }
-            return (0, lodash_1.omitBy)(resolvers, lodash_1.isEmpty);
         }
+        return (0, lodash_1.omitBy)(resolvers, lodash_1.isEmpty);
     }
 };
 KultGraphql = __decorate([
-    (0, core_1.KultPlugin)('Kult Graphql'),
+    (0, core_1.Plugin)({
+        name: 'Kult Graphql',
+    }),
     __metadata("design:paramtypes", [core_1.Application])
 ], KultGraphql);
 exports.default = KultGraphql;

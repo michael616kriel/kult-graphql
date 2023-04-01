@@ -54,10 +54,10 @@ export default {
 Define your queries and mutations using the `@Query` and `@Mutation` decorators:
 
 ```typescript label="./src/app/config/plugins.ts"
-import { Application, ControllerBase, KultController } from '@kult/core';
+import { Application, ControllerBase, Controller } from '@kult/core';
 import { Mutation, Query } from '@kult/graphql';
 
-@KultController('/users')
+@Controller('/users')
 class UserController extends ControllerBase {
   constructor(app: Application) {
     super(app);
