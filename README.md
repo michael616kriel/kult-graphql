@@ -1,5 +1,4 @@
 # @kult/graphql
-
 <div align="center">
 
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
